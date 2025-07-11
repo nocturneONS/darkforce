@@ -4,8 +4,12 @@ const clearBtn = document.getElementById("clearBtn");
 const status = document.getElementById("status");
 const magicWandBtn = document.getElementById("magicWandBtn");
 
-document.getElementById("openEditorBtn").addEventListener("click", () => {
-  browser.runtime.openOptionsPage();
+document.getElementById("openEditorBtn").addEventListener("click", async () => {
+  let tabs = await browser.tabs.query({ active: true, currentWindow: true });
+  let url = new URL(tabs[0].url);
+  let domain = url.hostname.replace(/^www\./, "");
+  let optionsUrl = `options.html?domain=${encodeURIComponent(domain)}`;
+  browser.tabs.create({ url: optionsUrl });
 });
 
 

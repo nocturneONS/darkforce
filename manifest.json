@@ -1,0 +1,26 @@
+{
+  "manifest_version": 2,
+  "name": "myStyles",
+  "version": "1.0",
+  "description": "Moje lekkie rozszerzenie do CSS per domena dla Firefoxa",
+  "permissions": [
+    "storage",
+    "activeTab",
+    "<all_urls>"
+  ],
+  "background": {
+    "scripts": ["background.js"],
+    "persistent": false
+  },
+  "browser_action": {
+    "default_popup": "popup.html",
+    "default_title": "myStyles"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

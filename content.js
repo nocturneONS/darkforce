@@ -49,32 +49,36 @@ browser.runtime.onMessage.addListener((message) => {
     case "activateWand":
       activateWandMode();
       break;
+
+    case "activateDestro":
+      activateDestroMode();
+      break;
   }
 });
 
-// --- Magic Wand ---
-let wandActive = false;
-let wandOverlay = null;
+// --- Destroyer ---
+let destroActive = false;
+let destroOverlay = null;
 
-function activateWandMode() {
-  if (wandActive) return;
+function activateDestroMode() {
+  if (destroActive) return;
 
-  wandActive = true;
+  destroActive = true;
   document.body.style.cursor = "crosshair";
 
   function highlight(e) {
-    if (!wandOverlay) {
-      wandOverlay = document.createElement("div");
-      Object.assign(wandOverlay.style, {
+    if (!destroOverlay) {
+      destroOverlay = document.createElement("div");
+      Object.assign(destroOverlay.style, {
         position: "absolute",
         zIndex: 9999,
         pointerEvents: "none",
         border: "2px dashed red",
       });
-      document.body.appendChild(wandOverlay);
+      document.body.appendChild(destroOverlay);
     }
     const rect = e.target.getBoundingClientRect();
-    Object.assign(wandOverlay.style, {
+    Object.assign(destroOverlay.style, {
       top: `${rect.top + window.scrollY}px`,
       left: `${rect.left + window.scrollX}px`,
       width: `${rect.width}px`,
@@ -99,10 +103,98 @@ function activateWandMode() {
 
     const cssRule = `${selector} {\n  display: none !important;\n}`;
 
-    saveWandRule(cssRule);
+    saveDestroRule(cssRule);
 
     cleanup();
   }
+
+  function cleanup() {
+    destroActive = false;
+    document.body.style.cursor = "";
+    if (destroOverlay) {
+      destroOverlay.remove();
+      destroOverlay = null;
+    }
+    document.removeEventListener("mousemove", highlight);
+    document.removeEventListener("click", clickHandler, true);
+  }
+
+  document.addEventListener("mousemove", highlight);
+  document.addEventListener("click", clickHandler, true);
+}
+
+function saveDestroRule(cssRule) {
+  browser.storage.local.get("styles").then((result) => {
+    const styles = result.styles || {};
+    const current = styles[domain] || "";
+    styles[domain] = current + "\n" + cssRule;
+
+    browser.storage.local.set({ styles }).then(() => {
+      applyStyle(styles[domain]);
+      console.log("[Destroyer] Zapisano i zastosowano:", cssRule);
+    });
+  });
+}
+
+// --- Magic Wand ---
+let wandActive = false;
+let wandOverlay = null;
+
+function activateWandMode() {
+  if (wandActive) return;
+
+  wandActive = true;
+  document.body.style.cursor = "crosshair";
+
+  function highlight(e) {
+    if (!wandOverlay) {
+      wandOverlay = document.createElement("div");
+      Object.assign(wandOverlay.style, {
+        position: "absolute",
+        zIndex: 9999,
+        pointerEvents: "none",
+        border: "2px dashed blue",
+      });
+      document.body.appendChild(wandOverlay);
+    }
+    const rect = e.target.getBoundingClientRect();
+    Object.assign(wandOverlay.style, {
+      top: `${rect.top + window.scrollY}px`,
+      left: `${rect.left + window.scrollX}px`,
+      width: `${rect.width}px`,
+      height: `${rect.height}px`,
+    });
+  }
+
+function clickHandler(e) {
+  e.preventDefault();
+  e.stopPropagation();
+
+  const el = e.target;
+  let selector = "";
+
+  if (el.id) {
+    selector = `#${el.id}`;
+  } else if (el.classList.length > 0) {
+    selector = "." + [...el.classList].join(".");
+  } else {
+    selector = el.tagName.toLowerCase();
+  }
+
+  const cssRule = `${selector} {\n \n}`;
+
+  // Zapisz regułę w storage i zastosuj
+  saveWandRule(cssRule);
+
+  // Wysyłamy tylko selektor do popup, bez zapisywania do storage
+  browser.runtime.sendMessage({
+    action: "appendCSS",
+    css: selector,
+  });
+
+  cleanup();
+}
+
 
   function cleanup() {
     wandActive = false;
@@ -118,7 +210,6 @@ function activateWandMode() {
   document.addEventListener("mousemove", highlight);
   document.addEventListener("click", clickHandler, true);
 }
-
 function saveWandRule(cssRule) {
   browser.storage.local.get("styles").then((result) => {
     const styles = result.styles || {};
@@ -127,7 +218,8 @@ function saveWandRule(cssRule) {
 
     browser.storage.local.set({ styles }).then(() => {
       applyStyle(styles[domain]);
-      console.log("[MagicWand] Zapisano i zastosowano:", cssRule);
+      console.log("[MagicWand] Zapisano", cssRule);
     });
   });
 }
+

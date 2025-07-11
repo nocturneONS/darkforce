@@ -3,6 +3,7 @@ const saveBtn = document.getElementById("saveBtn");
 const clearBtn = document.getElementById("clearBtn");
 const status = document.getElementById("status");
 const magicWandBtn = document.getElementById("magicWandBtn");
+const destroyerBtn = document.getElementById("destroyerBtn");
 
 document.getElementById("openEditorBtn").addEventListener("click", async () => {
   let tabs = await browser.tabs.query({ active: true, currentWindow: true });
@@ -103,11 +104,18 @@ magicWandBtn.addEventListener("click", async () => {
     browser.tabs.sendMessage(tabs[0].id, { action: "activateWand" });
   }
 });
+// Magic Wand - aktywacja trybu usuwania elementów
+destroyerBtn.addEventListener("click", async () => {
+  let tabs = await browser.tabs.query({ active: true, currentWindow: true });
+  if (tabs.length > 0) {
+    browser.tabs.sendMessage(tabs[0].id, { action: "activateDestro" });
+  }
+});
 
 // Odbiór wiadomości (np. appendCSS z Magic Wand)
 browser.runtime.onMessage.addListener((message) => {
   if (message.action === "appendCSS") {
     cssBox.value += `\n${message.css}`;
-    updateStatus("Dodano selektor z Magic Wand ✨");
+    updateStatus("Dodano selektor do edytora.");
   }
 });

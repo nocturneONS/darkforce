@@ -10,7 +10,7 @@ body {
   padding: 15px;
   background: #121212;
   color: #e5e7eb;
-  width: 360px;
+  width: 100%;
   box-sizing: border-box;
 }
 
@@ -130,15 +130,53 @@ button svg {
   gap: 12px;
   margin-bottom: 15px;
 }
+/* Destroyer = czerwony jak Clear */
+#destroyerBtn {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  font-size: 18px;
+  border-radius: 8px;
+  text-align: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  border: none;
+  margin-top: 10px;
+  outline: none;
+
+  background-color: #ef4444;
+  color: white;
+}
+
+#destroyerBtn:hover {
+  background-color: #dc2626;
+}
+
+#destroyerBtn:active {
+  background-color: #b91c1c;
+  transform: scale(0.97);
+}
+
+/* Ikona w przycisku */
+#destroyerBtn svg {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
+  fill: none;
+}
+
   </style>
 </head>
 <body>
 <button id="openEditorBtn">Otwórz edytor stylów</button>
-
+<br />
 <textarea id="cssBox" placeholder="Wpisz CSS tutaj..."></textarea>
 
 <button id="destroyerBtn" title="Tryb Destroyer (wybierz selektor)">
-  🧨
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shredder-icon lucide-shredder"><path d="M10 22v-5"/><path d="M14 19v-2"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M18 20v-3"/><path d="M2 13h20"/><path d="M20 13V7l-5-5H6a2 2 0 0 0-2 2v9"/><path d="M6 20v-3"/></svg>
 </button>
 
 <button id="magicWandBtn" title="Tryb usuwania (kliknij element)">
@@ -154,7 +192,8 @@ button svg {
 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash2-icon lucide-trash-2"><path d="M10 11v6"/><path d="M14 11v6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
 </button>
 
-  <script src="popup.js"></script>
+  <script src="sidebar.js"></script>
+  <script src="options.js"></script>
 </body>
 </html>
 

@@ -31,25 +31,20 @@ browser.storage.local.get("styles").then(result => {
   if (styles[domain]) {
     applyStyle(styles[domain]);
   }
-  console.log("Styles z storage:", styles);
-  console.log("CSS dla domeny", domain, "to:", styles[domain]);
 });
 
-// Nasłuchuj wiadomości z popupu
+// Nasłuchuj wiadomości z popupu/sidebar
 browser.runtime.onMessage.addListener((message) => {
   switch (message.action) {
     case "updateCSS":
       applyStyle(message.css);
       break;
-
     case "removeCSS":
       removeStyle();
       break;
-
     case "activateWand":
       activateWandMode();
       break;
-
     case "activateDestro":
       activateDestroMode();
       break;
@@ -103,7 +98,7 @@ function activateDestroMode() {
 
     const cssRule = `${selector} {\n  display: none !important;\n}`;
 
-    saveDestroRule(cssRule);
+    saveRule(cssRule);
 
     cleanup();
   }
@@ -121,19 +116,6 @@ function activateDestroMode() {
 
   document.addEventListener("mousemove", highlight);
   document.addEventListener("click", clickHandler, true);
-}
-
-function saveDestroRule(cssRule) {
-  browser.storage.local.get("styles").then((result) => {
-    const styles = result.styles || {};
-    const current = styles[domain] || "";
-    styles[domain] = current + "\n" + cssRule;
-
-    browser.storage.local.set({ styles }).then(() => {
-      applyStyle(styles[domain]);
-      console.log("[Destroyer] Zapisano i zastosowano:", cssRule);
-    });
-  });
 }
 
 // --- Magic Wand ---
@@ -166,35 +148,27 @@ function activateWandMode() {
     });
   }
 
-function clickHandler(e) {
-  e.preventDefault();
-  e.stopPropagation();
+  function clickHandler(e) {
+    e.preventDefault();
+    e.stopPropagation();
 
-  const el = e.target;
-  let selector = "";
+    const el = e.target;
+    let selector = "";
 
-  if (el.id) {
-    selector = `#${el.id}`;
-  } else if (el.classList.length > 0) {
-    selector = "." + [...el.classList].join(".");
-  } else {
-    selector = el.tagName.toLowerCase();
+    if (el.id) {
+      selector = `#${el.id}`;
+    } else if (el.classList.length > 0) {
+      selector = "." + [...el.classList].join(".");
+    } else {
+      selector = el.tagName.toLowerCase();
+    }
+
+    const cssRule = `${selector} {\n\n}`;
+
+    saveRule(cssRule);
+
+    cleanup();
   }
-
-  const cssRule = `${selector} {\n \n}`;
-
-  // Zapisz regułę w storage i zastosuj
-  saveWandRule(cssRule);
-
-  // Wysyłamy tylko selektor do popup, bez zapisywania do storage
-  browser.runtime.sendMessage({
-    action: "appendCSS",
-    css: selector,
-  });
-
-  cleanup();
-}
-
 
   function cleanup() {
     wandActive = false;
@@ -210,7 +184,9 @@ function clickHandler(e) {
   document.addEventListener("mousemove", highlight);
   document.addEventListener("click", clickHandler, true);
 }
-function saveWandRule(cssRule) {
+
+// Wspólna funkcja do zapisywania reguł CSS w localStorage i stosowania ich
+function saveRule(cssRule) {
   browser.storage.local.get("styles").then((result) => {
     const styles = result.styles || {};
     const current = styles[domain] || "";
@@ -218,8 +194,7 @@ function saveWandRule(cssRule) {
 
     browser.storage.local.set({ styles }).then(() => {
       applyStyle(styles[domain]);
-      console.log("[MagicWand] Zapisano", cssRule);
+      console.log("[content.js] Zapisano i zastosowano:", cssRule);
     });
   });
 }
-

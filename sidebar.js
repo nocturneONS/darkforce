@@ -1,44 +1,25 @@
-const cssBox = document.getElementById("cssBox"); // textarea dla CSS
+const cssBox = document.getElementById("cssBox");
 const saveBtn = document.getElementById("saveBtn");
 const clearBtn = document.getElementById("clearBtn");
 const status = document.getElementById("status");
 const magicWandBtn = document.getElementById("magicWandBtn");
 const destroyerBtn = document.getElementById("destroyerBtn");
 
-document.getElementById("openEditorBtn").addEventListener("click", async () => {
-  let tabs = await browser.tabs.query({ active: true, currentWindow: true });
-  let url = new URL(tabs[0].url);
-  let domain = url.hostname.replace(/^www\./, "");
-  let optionsUrl = `options.html?domain=${encodeURIComponent(domain)}`;
-  browser.tabs.create({ url: optionsUrl });
-});
-
-
 let currentDomain = "";
 
-cssBox.addEventListener("input", () => {
-  const css = cssBox.value.trim();
-  sendCssToContent(css);
-});
-
-function updateStatus(msg) {
-  status.textContent = msg;
-  setTimeout(() => {
-    status.textContent = "";
-  }, 2000);
-}
-
+// Normalizacja domeny
 function normalizeDomain(domain) {
   return domain.startsWith("www.") ? domain.slice(4) : domain;
 }
 
+// Załaduj aktualną domenę
 async function getCurrentDomain() {
   let tabs = await browser.tabs.query({ active: true, currentWindow: true });
   let url = new URL(tabs[0].url);
   return normalizeDomain(url.hostname);
 }
 
-// Załaduj aktualną domenę i styl
+// Załaduj styl z localStorage i wpisz do textarea
 async function loadCurrentStyle() {
   currentDomain = await getCurrentDomain();
   const data = await browser.storage.local.get("styles");
@@ -48,28 +29,68 @@ async function loadCurrentStyle() {
 
 loadCurrentStyle();
 
-// Wyślij CSS do content scriptu aktualnej karty
+// Nasłuchuj zmian w storage i aktualizuj textarea jeśli zmieniły się style danej domeny
+browser.storage.onChanged.addListener((changes, area) => {
+  if (area === "local" && changes.styles) {
+    const styles = changes.styles.newValue || {};
+    if (styles[currentDomain]) {
+      cssBox.value = styles[currentDomain];
+      updateStatus("Zaktualizowano style z localStorage");
+    } else {
+      cssBox.value = "";
+      updateStatus("Usunięto style dla tej domeny");
+    }
+  }
+});
+
+function updateStatus(msg) {
+  status.textContent = msg;
+  setTimeout(() => {
+    status.textContent = "";
+  }, 2000);
+}
+
+// Wyślij CSS do content scriptu, gdy edytujemy textarea
+cssBox.addEventListener("input", async () => {
+  const css = cssBox.value.trim();
+  sendCssToContent(css);
+});
+
+// Wyślij CSS do content scriptu
 async function sendCssToContent(css) {
   let tabs = await browser.tabs.query({ active: true, currentWindow: true });
   if (tabs.length > 0) {
     browser.tabs.sendMessage(tabs[0].id, {
       action: "updateCSS",
-      css: css
+      css: css,
     });
   }
 }
 
-// Powiadom content script o usunięciu stylu
+// Usuń styl z content scriptu i localStorage
+clearBtn.addEventListener("click", async () => {
+  const data = await browser.storage.local.get("styles");
+  const styles = data.styles || {};
+
+  delete styles[currentDomain];
+
+  await browser.storage.local.set({ styles });
+
+  cssBox.value = "";
+  updateStatus("Usunięto styl dla tej domeny.");
+  sendRemoveCss();
+});
+ 
 async function sendRemoveCss() {
   let tabs = await browser.tabs.query({ active: true, currentWindow: true });
   if (tabs.length > 0) {
     browser.tabs.sendMessage(tabs[0].id, {
-      action: "removeCSS"
+      action: "removeCSS",
     });
   }
-}
+};
 
-// Obsługa zapisu stylu
+// Obsługa zapisu przyciskiem save
 saveBtn.addEventListener("click", async () => {
   const css = cssBox.value.trim();
   const data = await browser.storage.local.get("styles");
@@ -83,39 +104,17 @@ saveBtn.addEventListener("click", async () => {
   sendCssToContent(css);
 });
 
-// Obsługa czyszczenia stylu
-clearBtn.addEventListener("click", async () => {
-  const data = await browser.storage.local.get("styles");
-  const styles = data.styles || {};
-
-  delete styles[currentDomain];
-
-  await browser.storage.local.set({ styles });
-
-  cssBox.value = "";
-  updateStatus("Usunięto styl dla tej domeny.");
-  sendRemoveCss();
-});
-
-// Magic Wand - aktywacja trybu usuwania elementów
+// Obsługa trybów Magic Wand i Destroyer — wysyłamy komunikaty do content.js
 magicWandBtn.addEventListener("click", async () => {
   let tabs = await browser.tabs.query({ active: true, currentWindow: true });
   if (tabs.length > 0) {
     browser.tabs.sendMessage(tabs[0].id, { action: "activateWand" });
   }
 });
-// Magic Wand - aktywacja trybu usuwania elementów
+
 destroyerBtn.addEventListener("click", async () => {
   let tabs = await browser.tabs.query({ active: true, currentWindow: true });
   if (tabs.length > 0) {
     browser.tabs.sendMessage(tabs[0].id, { action: "activateDestro" });
-  }
-});
-
-// Odbiór wiadomości (np. appendCSS z Magic Wand)
-browser.runtime.onMessage.addListener((message) => {
-  if (message.action === "appendCSS") {
-    cssBox.value += `\n${message.css}`;
-    updateStatus("Dodano selektor do edytora.");
   }
 });

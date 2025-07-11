@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8" />
+<title>Mini Stylus - Edytor CSS</title>
+<style>
+  body {
+    font-family: "Segoe UI", Tahoma, sans-serif;
+    background: #121212;
+    color: #e5e7eb;
+    padding: 20px;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  textarea {
+    width: 100%;
+    height: 300px;
+    background: #1e1e1e;
+    border-radius: 8px;
+    border: 1px solid #333;
+    color: #f8fafc;
+    font-family: monospace;
+    font-size: 14px;
+    padding: 10px;
+    resize: vertical;
+  }
+  button {
+    background: #34da34;
+    border: none;
+    color: white;
+    padding: 10px 15px;
+    font-size: 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+  button:hover {
+    background: #28b528;
+  }
+  input[type="file"] {
+    margin-top: 10px;
+  }
+  #status {
+    margin-top: 10px;
+    color: #38bdf8;
+    min-height: 20px;
+  }
+</style>
+</head>
+<body>
+  <h1>Mini Stylus - Edytor CSS</h1>
+  <input type="file" id="uploadCssFile" accept=".css" />
+  <textarea id="cssBox" placeholder="Tu edytuj CSS..."></textarea>
+  <br />
+  <button id="saveBtn">Zapisz styl dla aktualnej domeny</button>
+  <div id="status"></div>
+
+  <script src="options.js"></script>
+</body>
+</html>

@@ -4,6 +4,11 @@ const clearBtn = document.getElementById("clearBtn");
 const status = document.getElementById("status");
 const magicWandBtn = document.getElementById("magicWandBtn");
 
+document.getElementById("openEditorBtn").addEventListener("click", () => {
+  browser.runtime.openOptionsPage();
+});
+
+
 let currentDomain = "";
 
 cssBox.addEventListener("input", () => {

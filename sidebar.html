@@ -36,17 +36,11 @@ textarea:focus {
   box-shadow: 0 0 4px rgba(79, 70, 229, 0.5);
 }
 
-.button-row {
-  display: flex;
-  gap: 10px;
-  margin-top: 12px;
-  justify-content: flex-start;
-}
-
 /* Flat button style */
 button#saveBtn,
 button#clearBtn,
-button#magicWandBtn {
+button#magicWandBtn,
+button#destroyerBtn {
   width: 40px;
   height: 40px;
   padding: 0;
@@ -130,27 +124,10 @@ button svg {
   gap: 12px;
   margin-bottom: 15px;
 }
-/* Destroyer = czerwony jak Clear */
 #destroyerBtn {
-  width: 40px;
-  height: 40px;
-  padding: 0;
-  font-size: 18px;
-  border-radius: 8px;
-  text-align: center;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.1s ease;
-  border: none;
-  margin-top: 10px;
-  outline: none;
-
   background-color: #ef4444;
   color: white;
 }
-
 #destroyerBtn:hover {
   background-color: #dc2626;
 }

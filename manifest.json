@@ -14,7 +14,7 @@
       "16": "icons/icon16.png",
       "32": "icons/icon32.png"
     },
-    "default_title": "myStyles Sidebar"
+    "default_title": "myStyles"
   },
   "options_ui": {
     "page": "options.html",

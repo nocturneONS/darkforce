@@ -118,3 +118,10 @@ destroyerBtn.addEventListener("click", async () => {
     browser.tabs.sendMessage(tabs[0].id, { action: "activateDestro" });
   }
 });
+document.getElementById("openEditorBtn").addEventListener("click", async () => {
+  const [tab] = await browser.tabs.query({ active: true, currentWindow: true });
+  const url = new URL(tab.url);
+  const domain = url.hostname.replace(/^www\./, "");
+  const optionsUrl = `options.html?domain=${encodeURIComponent(domain)}`;
+  browser.tabs.create({ url: optionsUrl });
+});
